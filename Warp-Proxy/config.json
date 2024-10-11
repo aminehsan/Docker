@@ -1,0 +1,125 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "inbounds": [
+    {
+      "settings": {
+        "method": "aes-256-gcm",
+        "network": "tcp",
+        "password": "123456",
+        "level": 8,
+        "ota": false,
+        "udp": false
+      },
+      "listen": "0.0.0.0",
+      "sniffing": {
+        "destOverride": [
+          "tls",
+          "http"
+        ],
+        "enabled": true
+      },
+      "port": 8585,
+      "protocol": "http",
+      "tag": "inHttp"
+    },
+    {
+      "settings": {
+        "address": "1.1.1.1",
+        "network": "udp",
+        "userLevel": 0,
+        "port": 53,
+        "timeout": 10
+      },
+      "listen": "127.0.0.1",
+      "protocol": "dokodemo-door",
+      "tag": "inDns",
+      "port": 53
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "...",
+            "port": 80,
+            "users": [
+              {
+                "level": 8,
+                "encryption": "none",
+                "id": "..."
+              }
+            ]
+          }
+        ]
+      },
+      "mux": {
+        "concurrency": 8,
+        "enabled": false
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {
+          "headers": {
+            "host": "..."
+          },
+          "path": "/"
+        }
+      },
+      "tag": "outProxy"
+    }
+  ],
+  "dns": {
+    "disableFallback": true,
+    "queryStrategy": "UseIP",
+    "servers": [
+      {
+        "address": "1.1.1.1"
+      }
+    ],
+    "disableCache": false,
+    "disableFallbackIfMatch": true,
+    "tag": "dnsQuery"
+  },
+  "routing": {
+    "domainStrategy": "IPIfNonMatch",
+    "rules": [
+      {
+        "type": "field",
+        "outboundTag": "outDns",
+        "inboundTag": [
+          "inDns"
+        ]
+      },
+      {
+        "outboundTag": "outProxy",
+        "type": "field",
+        "inboundTag": [
+          "inHttp"
+        ]
+      }
+    ]
+  },
+  "policy": {
+    "system": {
+      "statsOutboundDownlink": true,
+      "statsOutboundUplink": true,
+      "statsInboundUplink": true,
+      "statsInboundDownlink": true
+    },
+    "levels": {
+      "8": {
+        "uplinkOnly": 1,
+        "bufferSize": 1024,
+        "handshake": 4,
+        "downlinkOnly": 1,
+        "statsUserUplink": true,
+        "connIdle": 30,
+        "statsUserDownlink": true
+      }
+    }
+  }
+}
