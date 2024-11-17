@@ -10,6 +10,7 @@ docker compose up --build -d
 ├── rabbitmq
   ├── rabbitmq.conf
   ├── docker-compose.yml
+
 ├── redis
   ├── redis.conf
   ├── docker-compose.yml
